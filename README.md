@@ -12,20 +12,13 @@ tamaños y los desplazamientos se calculan en tiempo de ejecución con `sizeof`,
 ejecutas en otra máquina o dos veces seguidas, los números cambian — y esa
 también es una lección.
 
-```
-┌──────────────────────────────────────────────────────────────────────────┐
-│ struct Registro { char etiqueta; int valor; char bandera; };             │
-├──────────────────────────────────────────────────────────────────────────┤
-│ campos:            1 + 4 + 1 = 6 bytes de datos utiles                   │
-│ sizeof(Registro) = 12 bytes reales                                       │
-│ alignof(int) = 4: 'valor' debe empezar en una direccion multiplo de 4    │
-│                                                                          │
-│ el struct se lleno con 0xAA antes de asignar los campos:                 │
-│ todo byte que siga en aa es relleno (padding).                           │
-└──────────────────────────────────────────────────────────────────────────┘
-0x55be69e41c20  │ 41 aa aa aa 56 00 00 00 │ A...V...
-0x55be69e41c28  │ 5a aa aa aa             │ Z...
-```
+![MemLab en la terminal](docs/capturas/terminal-bits.svg)
+
+Por ejemplo, el nivel 5 rellena un `struct` con `0xAA` antes de asignar sus
+campos: cada byte que siga valiendo `aa` en el volcado es relleno de verdad,
+puesto ahí por el compilador para alinear los campos.
+
+![Relleno de un struct](docs/capturas/terminal-padding.svg)
 
 ## Compilar y jugar
 
@@ -44,9 +37,15 @@ O con CMake:
 cmake -B build && cmake --build build && ./build/memlab
 ```
 
-Solo hace falta un compilador con C++17. No hay dependencias externas y **no hay
-interfaz gráfica**: todo ocurre en la terminal, con colores ANSI y caracteres de
-caja (`--sin-color` los desactiva).
+Solo hace falta un compilador con C++17. No hay dependencias externas: todo
+ocurre en la terminal, con colores ANSI y caracteres de caja (`--sin-color` los
+desactiva).
+
+> **¿Prefieres jugarlo con interfaz gráfica?** La rama
+> [`claude/memlab-interfaz-web-wasm`](../../tree/claude/memlab-interfaz-web-wasm)
+> compila este mismo motor de C++ a WebAssembly y lo juega en el navegador. Las
+> dos versiones comparten los niveles, los retos y los verificadores; solo cambia
+> cómo se dibujan.
 
 ## Opciones
 
@@ -58,6 +57,11 @@ caja (`--sin-color` los desactiva).
 | `--lista` | muestra los niveles disponibles |
 | `--sin-color` | desactiva los colores ANSI |
 | `--sin-guardado` | no escribe el archivo `.memlab_progreso` |
+
+La misma semilla da exactamente la misma partida en cualquier compilador y
+plataforma: el sorteo usa una distribución propia (`util::entero_en_rango`),
+porque `std::uniform_int_distribution` no está especificada y reparte distinto en
+cada biblioteca estándar.
 
 Durante la partida se puede escribir `pista` (cuesta la mitad de los puntos),
 `saltar`, `mapa` para redibujar la escena, `ayuda` o `salir`. Las respuestas
@@ -101,29 +105,12 @@ cual (`0010 1010`).
    retorno: puedes aplastarlo con una cadena larga, ver byte a byte qué se
    corrompió y luego repetirlo con la copia acotada.
 
-```
-heap> reservar 4
-  Reservados 16 bytes en 0x55a3c0001000 -> bloque #1
-heap> escribir 1 9 99
-  FUERA DE RANGO.
-  El bloque #1 tiene indices 0..3. Escribir en [9] toca la direccion
-  0x55a3c0001024, fuera del bloque. C++ no comprueba limites: nadie te
-  avisa, y el error aparece cuando se corrompe lo que hubiera al lado.
-```
+![Taller del montículo](docs/capturas/terminal-heap.svg)
 
-En el taller del nivel 8 la corrupción se ve byte a byte:
+En el taller del nivel 8 la corrupción se ve byte a byte: el canario y la
+dirección de retorno quedan en rojo en cuanto la cadena no cabe.
 
-```
-buffer> copiar contrasena123
-  DESBORDAMIENTO DE BUFFER.
-  La cadena necesita 14 bytes (contando el terminador) y el buffer solo
-  tiene 8: se escribieron 6 bytes fuera.
-
- indice  0  1  2  3  4  5  6  7 |  8  9 10 11 | 12 13 14 15 16 17 18 19
- buffer 63 6f 6e 74 72 61 73 65 | 6e 61 31 32 | 33 00 64 55 00 00 00 00
- canario: APLASTADO
- retorno: APLASTADO
-```
+![Desbordamiento de búfer](docs/capturas/terminal-desbordamiento.svg)
 
 ## Ejemplos para experimentar con sanitizadores
 
@@ -156,6 +143,9 @@ src/
   util.cpp          parseo de números en varias bases y normalización de texto
   niveles/          un archivo por nivel
 ejemplos/           programas para practicar con sanitizadores
+docs/
+  ansi_a_svg.py     convierte la salida de la terminal en las capturas del README
+  capturas/         las imágenes de este README
 tests/pruebas.cpp   pruebas automáticas sin dependencias
 ```
 

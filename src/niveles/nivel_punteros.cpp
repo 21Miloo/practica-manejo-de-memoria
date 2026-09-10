@@ -28,11 +28,11 @@ Nivel nivel_punteros(std::mt19937& azar) {
       "las direcciones de este nivel son reales: cambian en cada ejecucion porque el "
       "sistema operativo aleatoriza el mapa de memoria (ASLR).";
 
-  std::uniform_int_distribution<int> valores(100, 999);
+  const auto valor = [&azar]() { return util::entero_en_rango(azar, 100, 999); };
   auto d = std::make_shared<Datos>();
-  d->x = valores(azar);
-  d->nuevo = valores(azar);
-  for (int i = 0; i < 8; ++i) d->arreglo[i] = valores(azar);
+  d->x = valor();
+  d->nuevo = valor();
+  for (int i = 0; i < 8; ++i) d->arreglo[i] = valor();
 
   const auto escena_x = [d]() {
     ui::caja("int x = " + std::to_string(d->x) + ";   int* p = &x;",

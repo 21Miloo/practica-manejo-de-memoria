@@ -319,10 +319,8 @@ Nivel nivel_fugas(std::mt19937& azar) {
       "morir. Un desbordamiento es escribir fuera de lo que reservaste: pisas datos "
       "ajenos. El primero se nota tarde; el segundo, a veces nunca.";
 
-  std::uniform_int_distribution<int> vueltas(3, 9);
-  std::uniform_int_distribution<int> elementos(10, 40);
-  const int n = vueltas(azar);
-  const int m = elementos(azar);
+  const int n = util::entero_en_rango(azar, 3, 9);
+  const int m = util::entero_en_rango(azar, 10, 40);
 
   {
     const long long fugados = static_cast<long long>(n) * static_cast<long long>(m) *

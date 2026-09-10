@@ -3,9 +3,17 @@
 
 #include <cstdint>
 #include <optional>
+#include <random>
 #include <string>
 
 namespace util {
+
+// Entero uniforme en [minimo, maximo], sin sesgo y con el mismo resultado en
+// cualquier plataforma. std::uniform_int_distribution no sirve para esto: no
+// esta especificado como debe repartir, asi que libstdc++ y libc++ dan valores
+// distintos para la misma semilla y la misma partida dejaria de ser la misma
+// entre la version nativa y la compilada a WebAssembly.
+int entero_en_rango(std::mt19937& azar, int minimo, int maximo);
 
 // Quita espacios en blanco al inicio y al final.
 std::string recortar(std::string s);
