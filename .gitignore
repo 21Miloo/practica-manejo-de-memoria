@@ -1,0 +1,16 @@
+# Binarios del juego
+memlab
+memlab_pruebas
+
+# Salidas de compilacion
+build/
+*.o
+*.out
+
+# Progreso local de las partidas
+.memlab_progreso
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
