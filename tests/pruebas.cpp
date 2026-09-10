@@ -71,7 +71,7 @@ void probar_niveles() {
   const std::vector<unsigned> semillas = {1, 7, 42, 123, 2024, 31337};
   for (unsigned semilla : semillas) {
     const std::vector<Nivel> niveles = construir_niveles(semilla);
-    revisar(niveles.size() == 6, "hay 6 niveles (semilla " + std::to_string(semilla) + ")");
+    revisar(niveles.size() == 8, "hay 8 niveles (semilla " + std::to_string(semilla) + ")");
 
     for (std::size_t i = 0; i < niveles.size(); ++i) {
       const Nivel& nivel = niveles[i];

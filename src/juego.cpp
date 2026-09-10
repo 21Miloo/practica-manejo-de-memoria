@@ -73,6 +73,8 @@ std::vector<Nivel> construir_niveles(unsigned semilla) {
   niveles.push_back(nivel_punteros(azar));
   niveles.push_back(nivel_contiguidad(azar));
   niveles.push_back(nivel_heap(azar));
+  niveles.push_back(nivel_arreglos(azar));
+  niveles.push_back(nivel_fugas(azar));
   return niveles;
 }
 

@@ -11,3 +11,5 @@ Nivel nivel_representacion(std::mt19937& azar);
 Nivel nivel_punteros(std::mt19937& azar);
 Nivel nivel_contiguidad(std::mt19937& azar);
 Nivel nivel_heap(std::mt19937& azar);
+Nivel nivel_arreglos(std::mt19937& azar);
+Nivel nivel_fugas(std::mt19937& azar);

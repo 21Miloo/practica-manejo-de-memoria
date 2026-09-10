@@ -13,10 +13,14 @@
 
 namespace {
 
+// Se calcula del propio juego para que no haya dos verdades sobre el numero
+// de niveles.
+const int kTotalNiveles = static_cast<int>(construir_niveles(1).size());
+
 void mostrar_uso() {
   std::cout << "MemLab - laboratorio de memoria, punteros y bits en C++\n\n"
             << "Uso: memlab [opciones]\n\n"
-            << "  --nivel N        juega solo el nivel N (1 a 6)\n"
+            << "  --nivel N        juega solo el nivel N (1 a 8)\n"
             << "  --semilla N      fija la semilla para repetir la misma partida\n"
             << "  --demo           recorre todos los retos mostrando las respuestas\n"
             << "  --lista          muestra los niveles disponibles y termina\n"
@@ -70,8 +74,8 @@ int main(int argc, char** argv) {
   }
 
   if (solo_lista) { mostrar_lista(); return 0; }
-  if (opciones.nivel_pedido < 0 || opciones.nivel_pedido > 6) {
-    std::cerr << "El nivel debe estar entre 1 y 6.\n";
+  if (opciones.nivel_pedido < 0 || opciones.nivel_pedido > kTotalNiveles) {
+    std::cerr << "El nivel debe estar entre 1 y " << kTotalNiveles << ".\n";
     return 1;
   }
   return jugar(opciones);
