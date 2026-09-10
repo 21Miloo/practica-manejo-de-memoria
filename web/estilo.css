@@ -1,0 +1,234 @@
+/* MemLab web: paleta oscura, tarjetas y tipografia monoespaciada para que
+   todos los volcados de memoria conserven su alineacion. */
+:root {
+  --fondo: #0d1117;
+  --fondo-2: #151b23;
+  --tarjeta: #161b22;
+  --borde: #2a3441;
+  --texto: #d7e0ea;
+  --tenue: #8b98a8;
+  --acento: #58a6ff;
+  --rojo: #ff7b72;
+  --verde: #56d364;
+  --amarillo: #e3b341;
+  --azul: #79c0ff;
+  --magenta: #d2a8ff;
+  --cian: #56d4dd;
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding-bottom: 8.5rem;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* --- cabecera ---------------------------------------------------------- */
+.cabecera {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(180deg, #161d27, var(--fondo-2));
+  border-bottom: 1px solid var(--borde);
+}
+.marca { display: flex; align-items: center; gap: .9rem; }
+.logo {
+  font-family: var(--mono);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--fondo);
+  background: var(--acento);
+  padding: .3rem .55rem;
+  border-radius: .5rem;
+}
+.cabecera h1 { margin: 0; font-size: 1.35rem; letter-spacing: .5px; }
+.lema { margin: 0; color: var(--tenue); font-size: .85rem; }
+
+.controles { display: flex; gap: .9rem; align-items: flex-end; flex-wrap: wrap; }
+.controles label {
+  display: flex; flex-direction: column; gap: .25rem;
+  font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--tenue);
+}
+select, input[type="number"], input[type="text"] {
+  background: var(--fondo);
+  border: 1px solid var(--borde);
+  color: var(--texto);
+  border-radius: .45rem;
+  padding: .45rem .6rem;
+  font-family: var(--mono);
+  font-size: .9rem;
+}
+select:focus, input:focus { outline: 2px solid var(--acento); outline-offset: 1px; }
+
+button {
+  background: var(--acento);
+  color: #06101d;
+  border: 0;
+  border-radius: .45rem;
+  padding: .5rem .95rem;
+  font-weight: 600;
+  font-size: .9rem;
+  cursor: pointer;
+}
+button:hover:not(:disabled) { filter: brightness(1.12); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+
+/* --- barra de progreso ------------------------------------------------- */
+.progreso {
+  position: sticky;
+  top: var(--alto-cabecera, 4.6rem);
+  z-index: 29;
+  padding: .7rem 1.5rem;
+  background: var(--fondo-2);
+  border-bottom: 1px solid var(--borde);
+}
+.progreso-datos {
+  display: flex; justify-content: space-between; gap: 1rem;
+  font-size: .82rem; color: var(--tenue); margin-bottom: .4rem;
+}
+#etiqueta-nivel { color: var(--texto); font-weight: 600; }
+.barra { height: 6px; background: #0b0f14; border-radius: 99px; overflow: hidden; }
+.barra-relleno {
+  height: 100%; width: 0;
+  background: linear-gradient(90deg, var(--acento), var(--verde));
+  transition: width .35s ease;
+}
+
+/* --- flujo del juego --------------------------------------------------- */
+#flujo { max-width: 900px; margin: 0 auto; padding: 1.25rem 1.25rem 0; }
+
+.titulo {
+  margin: 1.75rem 0 .75rem;
+  padding: .7rem 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border-left: 4px solid var(--acento);
+  background: linear-gradient(90deg, rgba(88,166,255,.16), transparent);
+  border-radius: .3rem;
+}
+
+.caja {
+  margin: .7rem 0;
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: .6rem;
+  overflow: hidden;
+}
+.caja-encabezado {
+  padding: .5rem .85rem;
+  background: #1c2430;
+  border-bottom: 1px solid var(--borde);
+  color: var(--amarillo);
+  font-weight: 600;
+  font-size: .88rem;
+}
+.caja-cuerpo, .fila { padding: 0 .85rem; }
+.caja-cuerpo { padding-top: .6rem; padding-bottom: .6rem; }
+
+/* Todo el contenido del juego usa monoespaciado: es lo que mantiene
+   alineados los volcados, las tablas de bits y las celdas de los arreglos. */
+.fila, .mono, .codigo, .linea, .pregunta, .resultado {
+  font-family: var(--mono);
+  font-size: .85rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.codigo {
+  margin: .7rem 0;
+  padding: .75rem .9rem;
+  background: #10161e;
+  border: 1px solid var(--borde);
+  border-left: 3px solid var(--verde);
+  border-radius: .5rem;
+  color: var(--verde);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.mono {
+  margin: .5rem 0;
+  padding: .6rem .8rem;
+  background: #0b0f14;
+  border: 1px solid var(--borde);
+  border-radius: .5rem;
+  overflow-x: auto;
+  white-space: pre;
+  font-size: .82rem;
+}
+
+.linea { padding: .1rem .2rem; }
+.separador { height: 1px; margin: 1.25rem 0; background: var(--borde); border: 0; }
+
+.pregunta {
+  margin: .9rem 0;
+  padding: .75rem .9rem;
+  background: rgba(227,179,65,.09);
+  border: 1px solid rgba(227,179,65,.35);
+  border-radius: .5rem;
+  color: #f0d38a;
+  font-size: .95rem;
+}
+
+.eco {
+  margin: .35rem 0;
+  padding: .3rem .6rem;
+  color: var(--acento);
+  font-family: var(--mono);
+  font-size: .85rem;
+  border-left: 2px solid var(--acento);
+}
+
+/* colores heredados de los codigos ANSI del motor */
+.c-31 { color: var(--rojo); }
+.c-32 { color: var(--verde); }
+.c-33 { color: var(--amarillo); }
+.c-34 { color: var(--azul); }
+.c-35 { color: var(--magenta); }
+.c-36 { color: var(--cian); }
+.c-90 { color: var(--tenue); }
+.c-1  { font-weight: 700; color: #fff; }
+
+/* --- entrada ----------------------------------------------------------- */
+.zona-entrada {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  padding: .75rem 1.25rem 1rem;
+  z-index: 30;
+  background: var(--fondo-2);
+  border-top: 1px solid var(--borde);
+  box-shadow: 0 -10px 24px rgba(0,0,0,.45);
+}
+.atajos {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+  max-width: 900px; margin: 0 auto .55rem;
+}
+.atajos button {
+  background: #22303f; color: var(--texto);
+  font-family: var(--mono); font-size: .78rem; font-weight: 500;
+  padding: .3rem .7rem; border: 1px solid var(--borde);
+}
+.atajos button:hover:not(:disabled) { background: #2c3d50; }
+
+.linea-entrada { display: flex; gap: .55rem; max-width: 900px; margin: 0 auto; align-items: center; }
+.prompt { font-family: var(--mono); color: var(--cian); font-weight: 700; white-space: nowrap; }
+#campo { flex: 1; }
+
+@media (max-width: 640px) {
+  .cabecera { padding: .85rem 1rem; }
+  .controles { width: 100%; }
+  #flujo { padding: 1rem .75rem 0; }
+  .zona-entrada { padding: .6rem .75rem .8rem; }
+}

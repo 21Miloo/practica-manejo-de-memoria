@@ -36,16 +36,13 @@ Nivel nivel_representacion(std::mt19937& azar) {
       "regla de lectura que tu eliges. Cambia el tipo y el mismo patron dice otra cosa.";
 
   const std::vector<float> candidatos = {1.5f, -2.25f, 0.125f, 3.5f, -0.75f, 6.0f, 0.375f};
-  std::uniform_int_distribution<std::size_t> elige(0, candidatos.size() - 1);
-  std::uniform_int_distribution<int> rango_pequeno(3, 60);
-  std::uniform_int_distribution<int> rango_alto(0x81, 0xFE);
-
   auto d = std::make_shared<Datos>();
-  d->f = candidatos[elige(azar)];
+  d->f = candidatos[static_cast<std::size_t>(
+      util::entero_en_rango(azar, 0, static_cast<int>(candidatos.size()) - 1))];
   std::memcpy(&d->bits_f, &d->f, sizeof(d->bits_f));
 
-  const int n = rango_pequeno(azar);
-  const std::uint8_t patron = static_cast<std::uint8_t>(rango_alto(azar));
+  const int n = util::entero_en_rango(azar, 3, 60);
+  const std::uint8_t patron = static_cast<std::uint8_t>(util::entero_en_rango(azar, 0x81, 0xFE));
 
   {
     Reto r;

@@ -2,13 +2,44 @@
 #pragma once
 
 #include <cstddef>
+#include <functional>
 #include <string>
 #include <vector>
 
 namespace ui {
 
+// Como se dibuja la salida. En modo Web no se emiten cajas de caracteres ni
+// codigos ANSI: se emiten lineas con marcas que el navegador convierte en DOM.
+enum class Modo { kTerminal, kWeb };
+extern Modo modo;
+
+// Marcas de estructura (primer byte de la linea) y de color, usadas solo en
+// modo Web. Son bytes de control, asi que nunca chocan con el contenido.
+constexpr char kMarcaColorInicio = '\x02';   // \x02 CODIGO \x03 texto \x04
+constexpr char kMarcaColorTexto = '\x03';
+constexpr char kMarcaColorFin = '\x04';
+constexpr char kMarcaCaja = '\x05';          // abre una tarjeta; resto = encabezado
+constexpr char kMarcaFin = '\x06';           // cierra el bloque abierto
+constexpr char kMarcaTitulo = '\x07';        // titulo de nivel; resto = texto
+constexpr char kMarcaCodigo = '\x08';        // abre un bloque de codigo
+constexpr char kMarcaMono = '\x0b';          // abre un bloque monoespaciado
+constexpr char kMarcaSeparador = '\x0e';     // linea divisoria
+constexpr char kMarcaEntrada = '\x0f';       // el motor pide una linea al usuario
+constexpr char kMarcaEstado = '\x10';        // estado de la partida en JSON
+constexpr char kMarcaFinPartida = '\x11';    // la partida termino
+constexpr char kMarcaPregunta = '\x12';      // enunciado del reto
+
 // Si es false, todas las funciones de color devuelven el texto tal cual.
 extern bool color_activo;
+
+// Lector de entrada. Si esta vacio se lee de la entrada estandar; la version
+// web instala aqui un lector que pide la linea al navegador.
+using LectorEntrada = std::function<bool(const std::string&, std::string&)>;
+extern LectorEntrada lector_entrada;
+
+// Pide una linea al jugador mostrando 'prompt'. Devuelve false si se acabo la
+// entrada. Es el unico punto por el que el juego lee del usuario.
+bool leer_linea(const std::string& prompt, std::string& destino);
 
 std::string tinte(const std::string& codigo, const std::string& texto);
 

@@ -44,17 +44,17 @@ Nivel nivel_contiguidad(std::mt19937& azar) {
       "ahi salen el indexado en tiempo constante, el rendimiento de la cache y tambien "
       "el relleno que el compilador inserta dentro de los structs.";
 
-  std::uniform_int_distribution<int> valores(10, 99);
+  const auto valor = [&azar]() { return util::entero_en_rango(azar, 10, 99); };
   auto d = std::make_shared<Datos>();
-  for (int i = 0; i < 8; ++i) d->datos[i] = valores(azar);
+  for (int i = 0; i < 8; ++i) d->datos[i] = valor();
   for (int f = 0; f < 3; ++f)
-    for (int c = 0; c < 4; ++c) d->matriz[f][c] = valores(azar);
+    for (int c = 0; c < 4; ++c) d->matriz[f][c] = valor();
 
   // Rellenamos el struct con 0xAA antes de asignar los campos: los bytes que
   // sigan valiendo 0xAA en el volcado son exactamente el relleno.
   std::memset(&d->registro, 0xAA, sizeof(d->registro));
   d->registro.etiqueta = 'A';
-  d->registro.valor = valores(azar);
+  d->registro.valor = valor();
   d->registro.bandera = 'Z';
 
   const auto escena_arreglo = [d]() {

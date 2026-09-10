@@ -35,11 +35,13 @@ Nivel nivel_bytes(std::mt19937& azar) {
       "La memoria es un arreglo gigante de bytes numerados. Un valor de varios bytes "
       "se reparte entre direcciones consecutivas, y el orden en que se reparte importa.";
 
-  std::uniform_int_distribution<unsigned> rango(0x10000000u, 0x7EFFFFFFu);
+  const auto sorteo = [&azar]() {
+    return static_cast<unsigned>(util::entero_en_rango(azar, 0x10000000, 0x7EFFFFFF));
+  };
   auto d = std::make_shared<Datos>();
-  d->v = rango(azar);
-  d->corto = static_cast<std::uint16_t>(rango(azar) & 0xFFFFu);
-  for (int i = 0; i < 4; ++i) d->crudo[i] = static_cast<unsigned char>(rango(azar) & 0xFFu);
+  d->v = sorteo();
+  d->corto = static_cast<std::uint16_t>(sorteo() & 0xFFFFu);
+  for (int i = 0; i < 4; ++i) d->crudo[i] = static_cast<unsigned char>(sorteo() & 0xFFu);
 
   const bool little = es_little_endian();
   std::uint8_t primer_byte = 0;

@@ -1,7 +1,5 @@
 // Nivel 6: memoria dinamica. Pila contra monticulo, fugas, punteros colgantes
 // y un taller interactivo con un heap simulado.
-#include <unistd.h>
-
 #include <cstdint>
 #include <iostream>
 #include <memory>
@@ -30,7 +28,7 @@ std::string distancia_legible(std::uintptr_t a, std::uintptr_t b) {
 
 struct Bloque {
   int id = 0;
-  std::uintptr_t direccion = 0;
+  unsigned long long direccion = 0;  // direccion simulada, siempre de 64 bits
   int elementos = 0;
   bool activo = false;
   std::vector<int> datos;
@@ -46,7 +44,7 @@ class TallerHeap {
 
  private:
   std::vector<Bloque> bloques_;
-  std::uintptr_t proxima_direccion_ = 0x55a3c0001000ull;
+  unsigned long long proxima_direccion_ = 0x55a3c0001000ull;
   int siguiente_id_ = 1;
   int errores_ = 0;
   bool reservo_cuatro_ = false;
@@ -106,7 +104,7 @@ class TallerHeap {
     b.activo = true;
     b.datos.assign(static_cast<std::size_t>(n), 0);
     b.direccion = proxima_direccion_;
-    proxima_direccion_ += static_cast<std::uintptr_t>(n) * sizeof(int) + 16;  // + cabecera
+    proxima_direccion_ += static_cast<unsigned long long>(n) * sizeof(int) + 16;  // + cabecera
     bloques_.push_back(b);
     std::cout << ui::verde("  Reservados " + std::to_string(n * static_cast<int>(sizeof(int))) +
                            " bytes en " + ui::dir(b.direccion) + " -> bloque #" +
@@ -138,7 +136,7 @@ class TallerHeap {
           "El bloque #" + std::to_string(id) + " tiene indices 0.." +
               std::to_string(b->elementos - 1) + ". Escribir en [" + std::to_string(indice) +
               "] toca la direccion " +
-              ui::dir(b->direccion + static_cast<std::uintptr_t>(indice) * sizeof(int)) +
+              ui::dir(b->direccion + static_cast<unsigned long long>(indice) * sizeof(int)) +
               ", fuera del bloque. C++ no comprueba limites: nadie te avisa, y el error "
               "aparece cuando se corrompe lo que hubiera al lado.",
           "  ", true);
@@ -147,7 +145,7 @@ class TallerHeap {
     b->datos[static_cast<std::size_t>(indice)] = valor;
     std::cout << ui::gris("  bloque #" + std::to_string(id) + "[" + std::to_string(indice) +
                           "] = " + std::to_string(valor) + "   (direccion " +
-                          ui::dir(b->direccion + static_cast<std::uintptr_t>(indice) * sizeof(int)) +
+                          ui::dir(b->direccion + static_cast<unsigned long long>(indice) * sizeof(int)) +
                           ")")
               << "\n";
     revisar_escritura(*b);
@@ -311,10 +309,8 @@ class TallerHeap {
   int bucle_interactivo() {
     std::string linea;
     while (true) {
-      std::cout << ui::cian("heap> ") << std::flush;
-      if (!std::getline(std::cin, linea)) { std::cout << "\n"; break; }
+      if (!ui::leer_linea("heap> ", linea)) break;
       linea = util::recortar(linea);
-      if (!isatty(fileno(stdin))) std::cout << linea << "\n";
       const std::string norm = util::normalizar(linea);
       if (norm == "listo" || norm == "fin" || norm == "done" || norm == "salir") break;
       procesar(linea);
@@ -349,8 +345,7 @@ Nivel nivel_heap(std::mt19937& azar) {
       "que pides con new sigue ahi hasta que alguien lo devuelve con delete. Ese "
       "'alguien' eres tu.";
 
-  std::uniform_int_distribution<int> tam(3, 9);
-  const int n = tam(azar);
+  const int n = util::entero_en_rango(azar, 3, 9);
 
   {
     // Comparamos direcciones reales de pila y monticulo en esta ejecucion.

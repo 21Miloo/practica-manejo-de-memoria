@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MemLab — memoria, punteros y bits en C++</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2358a6ff'/><text x='16' y='23' font-size='17' font-family='monospace' font-weight='bold' text-anchor='middle' fill='%230d1117'>0x</text></svg>">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header class="cabecera">
+  <div class="marca">
+    <span class="logo">0x</span>
+    <div>
+      <h1>MemLab</h1>
+      <p class="lema">memoria, punteros y bits en C++ &mdash; el mismo motor, compilado a WebAssembly</p>
+    </div>
+  </div>
+  <div class="controles">
+    <label>Nivel
+      <select id="selector-nivel">
+        <option value="0">Todos</option>
+      </select>
+    </label>
+    <label>Semilla
+      <input id="campo-semilla" type="number" min="0" max="65535" value="7">
+    </label>
+    <button id="boton-nueva" type="button">Nueva partida</button>
+  </div>
+</header>
+
+<div class="progreso">
+  <div class="progreso-datos">
+    <span id="etiqueta-nivel">Cargando WebAssembly&hellip;</span>
+    <span id="etiqueta-puntos"></span>
+  </div>
+  <div class="barra"><div class="barra-relleno" id="barra-relleno"></div></div>
+</div>
+
+<main id="flujo" aria-live="polite"></main>
+
+<form class="zona-entrada" id="formulario" autocomplete="off">
+  <div class="atajos" id="atajos"></div>
+  <div class="linea-entrada">
+    <span class="prompt" id="prompt">memlab&gt;</span>
+    <input id="campo" type="text" placeholder="Escribe tu respuesta y pulsa Enter" autofocus disabled>
+    <button type="submit" id="boton-enviar" disabled>Enviar</button>
+  </div>
+</form>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

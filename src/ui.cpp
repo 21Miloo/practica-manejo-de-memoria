@@ -1,5 +1,7 @@
 #include "ui.hpp"
 
+#include <unistd.h>
+
 #include <cctype>
 #include <cstdint>
 #include <cstdio>
@@ -8,11 +10,27 @@
 
 namespace ui {
 
+Modo modo = Modo::kTerminal;
 bool color_activo = true;
+LectorEntrada lector_entrada;
 
 std::string tinte(const std::string& codigo, const std::string& texto) {
+  if (modo == Modo::kWeb) {
+    // El navegador convierte estas marcas en <span class="c-CODIGO">.
+    return std::string(1, kMarcaColorInicio) + codigo + kMarcaColorTexto + texto + kMarcaColorFin;
+  }
   if (!color_activo) return texto;
   return "\033[" + codigo + "m" + texto + "\033[0m";
+}
+
+bool leer_linea(const std::string& prompt, std::string& destino) {
+  if (lector_entrada) return lector_entrada(prompt, destino);
+  std::cout << cian(prompt) << std::flush;
+  if (!std::getline(std::cin, destino)) { std::cout << "\n"; return false; }
+  // Si la entrada no viene de un terminal no hay eco: lo hacemos nosotros para
+  // que una sesion guionizada se lea igual que una jugada a mano.
+  if (!isatty(fileno(stdin))) std::cout << destino << "\n";
+  return true;
 }
 
 std::size_t ancho(const std::string& s) {
@@ -24,6 +42,13 @@ std::size_t ancho(const std::string& s) {
       continue;
     }
     if ((c & 0xC0) == 0x80) continue;  // byte de continuacion UTF-8
+    if (c < 0x20) {                    // marcas de estructura y color del modo web
+      if (c == kMarcaColorInicio) {    // \x02 CODIGO \x03: el codigo tampoco cuenta
+        while (i + 1 < s.size() && s[i + 1] != kMarcaColorTexto) ++i;
+        ++i;
+      }
+      continue;
+    }
     ++n;
   }
   return n;
@@ -67,6 +92,10 @@ void parrafo(const std::string& texto, const std::string& sangria, bool en_gris)
 }
 
 void titulo(const std::string& texto) {
+  if (modo == Modo::kWeb) {
+    std::cout << kMarcaTitulo << texto << "\n";
+    return;
+  }
   const std::string linea = repetir("═", kAnchoCaja);
   std::cout << "\n" << cian("╔" + linea + "╗") << "\n";
   const std::size_t hueco = kAnchoCaja > ancho(texto) + 2 ? kAnchoCaja - ancho(texto) - 2 : 0;
@@ -76,6 +105,12 @@ void titulo(const std::string& texto) {
 }
 
 void caja(const std::string& encabezado, const std::vector<std::string>& lineas) {
+  if (modo == Modo::kWeb) {
+    std::cout << kMarcaCaja << encabezado << "\n";
+    for (const std::string& l : lineas) std::cout << l << "\n";
+    std::cout << kMarcaFin << "\n";
+    return;
+  }
   const std::string barra = repetir("─", kAnchoCaja);
   std::cout << gris("┌" + barra + "┐") << "\n";
   if (!encabezado.empty()) {
@@ -103,9 +138,18 @@ void caja(const std::string& encabezado, const std::vector<std::string>& lineas)
   std::cout << gris("└" + barra + "┘") << "\n";
 }
 
-void separador() { std::cout << gris(repetir("┄", kAnchoCaja + 2)) << "\n"; }
+void separador() {
+  if (modo == Modo::kWeb) { std::cout << kMarcaSeparador << "\n"; return; }
+  std::cout << gris(repetir("┄", kAnchoCaja + 2)) << "\n";
+}
 
 void codigo(const std::vector<std::string>& lineas) {
+  if (modo == Modo::kWeb) {
+    std::cout << kMarcaCodigo << "\n";
+    for (const std::string& l : lineas) std::cout << l << "\n";
+    std::cout << kMarcaFin << "\n";
+    return;
+  }
   for (const std::string& l : lineas) std::cout << "    " << verde(l) << "\n";
 }
 
@@ -137,6 +181,9 @@ std::string volcado(const void* p, std::size_t n, std::size_t por_fila,
   }
   std::string s = os.str();
   if (!s.empty()) s.pop_back();
+  if (modo == Modo::kWeb) {
+    return std::string(1, kMarcaMono) + "\n" + s + "\n" + kMarcaFin;
+  }
   return s;
 }
 

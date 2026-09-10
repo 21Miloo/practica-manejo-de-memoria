@@ -1,7 +1,5 @@
 #include "juego.hpp"
 
-#include <unistd.h>
-
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -82,6 +80,30 @@ namespace {
 
 constexpr const char* kArchivoProgreso = ".memlab_progreso";
 
+// En modo web, la pagina dibuja el progreso a partir de estas lineas.
+void emitir_estado(int nivel, const std::string& nombre_nivel, int reto, int retos,
+                   int puntos, int maximo) {
+  if (ui::modo != ui::Modo::kWeb) return;
+  std::cout << ui::kMarcaEstado << "{\"nivel\":" << nivel << ",\"nombreNivel\":\""
+            << nombre_nivel << "\",\"reto\":" << reto << ",\"retos\":" << retos
+            << ",\"puntos\":" << puntos << ",\"maximo\":" << maximo << "}\n";
+}
+
+// El enunciado se destaca: en la terminal con "? " y en la web con su propia
+// marca, para que la pagina lo pinte como pregunta.
+void mostrar_enunciado(const std::string& enunciado) {
+  if (ui::modo == ui::Modo::kWeb) {
+    std::cout << ui::kMarcaPregunta << enunciado << "\n";
+    return;
+  }
+  std::cout << "\n" << ui::amarillo("? ");
+  bool primera = true;
+  for (const std::string& l : ui::envolver(enunciado, 70)) {
+    std::cout << (primera ? "" : "  ") << l << "\n";
+    primera = false;
+  }
+}
+
 void mostrar_ayuda_comandos() {
   ui::caja("Comandos disponibles en cualquier momento",
            {
@@ -121,14 +143,10 @@ void guardar_progreso(int puntos, int maximo) {
   archivo << puntos << " / " << maximo << "\n";
 }
 
-// Lee una linea. Devuelve false si se acabo la entrada (EOF).
+// Lee una linea del jugador. Devuelve false si se acabo la entrada.
 bool leer_linea(std::string& destino) {
-  std::cout << ui::cian("memlab> ") << std::flush;
-  if (!std::getline(std::cin, destino)) { std::cout << "\n"; return false; }
+  if (!ui::leer_linea("memlab> ", destino)) return false;
   destino = util::recortar(destino);
-  // Si la entrada viene de un archivo o de una tuberia no hay eco del terminal:
-  // lo hacemos nosotros para que la sesion quede legible.
-  if (!isatty(fileno(stdin))) std::cout << destino << "\n";
   return true;
 }
 
@@ -141,12 +159,7 @@ Resultado jugar_reto(const Reto& reto, int numero_reto, int total_retos, int& pu
                           std::to_string(total_retos) + ": " + reto.titulo)
             << "  " << ui::gris("(" + std::to_string(reto.puntos) + " puntos)") << "\n\n";
   if (reto.escena) reto.escena();
-  std::cout << "\n" << ui::amarillo("? ");
-  bool primera = true;
-  for (const std::string& l : ui::envolver(reto.enunciado, 70)) {
-    std::cout << (primera ? "" : "  ") << l << "\n";
-    primera = false;
-  }
+  mostrar_enunciado(reto.enunciado);
 
   if (reto.taller) {
     puntos_ganados = reto.ejecutar_taller(demo);
@@ -176,7 +189,7 @@ Resultado jugar_reto(const Reto& reto, int numero_reto, int total_retos, int& pu
     if (comando == "ayuda" || comando == "help") { mostrar_ayuda_comandos(); continue; }
     if (comando == "mapa") {
       if (reto.escena) reto.escena();
-      std::cout << "\n" << ui::amarillo("? ") << reto.enunciado << "\n";
+      mostrar_enunciado(reto.enunciado);
       continue;
     }
     if (comando == "pista") {
@@ -235,6 +248,14 @@ int jugar(const Opciones& opciones) {
   std::map<std::string, int> por_nivel;
   bool salir = false;
 
+  // Puntaje maximo de la partida completa: la pagina lo necesita desde el
+  // primer reto para dibujar la barra de progreso.
+  int maximo_total = 0;
+  for (std::size_t i = 0; i < niveles.size(); ++i) {
+    if (opciones.nivel_pedido != 0 && opciones.nivel_pedido != static_cast<int>(i) + 1) continue;
+    for (const Reto& r : niveles[i].retos) maximo_total += r.puntos;
+  }
+
   for (std::size_t i = 0; i < niveles.size() && !salir; ++i) {
     const Nivel& nivel = niveles[i];
     const int numero_nivel = static_cast<int>(i) + 1;
@@ -248,11 +269,15 @@ int jugar(const Opciones& opciones) {
     for (std::size_t j = 0; j < nivel.retos.size(); ++j) {
       const Reto& reto = nivel.retos[j];
       maximo += reto.puntos;
+      emitir_estado(numero_nivel, nivel.nombre, static_cast<int>(j) + 1,
+                    static_cast<int>(nivel.retos.size()), puntos, maximo_total);
       int ganados = 0;
       const Resultado r = jugar_reto(reto, static_cast<int>(j) + 1,
                                      static_cast<int>(nivel.retos.size()), ganados, opciones.demo);
       puntos += ganados;
       puntos_nivel += ganados;
+      emitir_estado(numero_nivel, nivel.nombre, static_cast<int>(j) + 1,
+                    static_cast<int>(nivel.retos.size()), puntos, maximo_total);
       if (r == Resultado::kSalir) { salir = true; break; }
     }
     por_nivel["Nivel " + std::to_string(numero_nivel) + " - " + nivel.nombre] = puntos_nivel;

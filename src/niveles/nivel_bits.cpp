@@ -29,11 +29,8 @@ Nivel nivel_bits(std::mt19937& azar) {
       "Un byte son 8 interruptores. Aqui aprendes a leerlos y a manipularlos con "
       "mascaras, desplazamientos y operadores logicos.";
 
-  std::uniform_int_distribution<int> rango_byte(0x21, 0xFE);
-  std::uniform_int_distribution<int> rango_bit(0, 7);
-
-  const std::uint8_t b = static_cast<std::uint8_t>(rango_byte(azar));
-  const int k = rango_bit(azar);
+  const std::uint8_t b = static_cast<std::uint8_t>(util::entero_en_rango(azar, 0x21, 0xFE));
+  const int k = util::entero_en_rango(azar, 0, 7);
 
   // Para que los retos se vean: 'apagar' usa un bit que este en 1 y 'encender'
   // uno que este en 0, asi el resultado siempre cambia respecto de b.
@@ -46,7 +43,7 @@ Nivel nivel_bits(std::mt19937& azar) {
   };
   const int bit_apagado = buscar_bit(k, 0);  // candidato para encender
   const int bit_encendido = buscar_bit(k, 1);  // candidato para apagar
-  const std::uint8_t mascara = static_cast<std::uint8_t>(rango_byte(azar));
+  const std::uint8_t mascara = static_cast<std::uint8_t>(util::entero_en_rango(azar, 0x21, 0xFE));
 
   const auto escena = [b]() { dibujar_byte("byte b", b); };
 

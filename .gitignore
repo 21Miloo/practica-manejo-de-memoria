@@ -10,6 +10,10 @@ build/
 # Progreso local de las partidas
 .memlab_progreso
 
+# El modulo WebAssembly compilado SI se versiona: asi se puede jugar la version
+# web clonando el repositorio, sin instalar el SDK de Emscripten.
+# (para regenerarlo: ./web/construir.sh)
+
 # CMake
 CMakeCache.txt
 CMakeFiles/

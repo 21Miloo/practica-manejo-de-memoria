@@ -1,7 +1,5 @@
 // Nivel 7: arreglos dinamicos. Reservar en ejecucion, crecer copiando,
 // matrices dinamicas y un taller donde el jugador hace de std::vector.
-#include <unistd.h>
-
 #include <cstdint>
 #include <iostream>
 #include <memory>
@@ -33,12 +31,12 @@ class TallerArreglo {
  private:
   int capacidad_ = 2;
   std::vector<int> datos_;
-  std::uintptr_t direccion_ = 0;
+  unsigned long long direccion_ = 0;  // simulada: 64 bits en cualquier plataforma
 
   // Bloque viejo pendiente de liberar tras un crecimiento.
   bool hay_viejo_ = false;
   int capacidad_vieja_ = 0;
-  std::uintptr_t direccion_vieja_ = 0;
+  unsigned long long direccion_vieja_ = 0;
   bool copiado_ = true;
 
   bool activo_ = true;  // el bloque actual sigue reservado
@@ -109,7 +107,7 @@ class TallerArreglo {
                       " y ya guarda " + std::to_string(datos_.size()) +
                       " elementos. Escribir en el indice " + std::to_string(datos_.size()) +
                       " toca la direccion " +
-                      ui::dir(direccion_ + static_cast<std::uintptr_t>(datos_.size()) *
+                      ui::dir(direccion_ + static_cast<unsigned long long>(datos_.size()) *
                                                sizeof(int)) +
                       ", que ya esta fuera del bloque. C++ te dejaria hacerlo sin avisar: "
                       "primero hay que crecer (reservar, copiar, liberar_viejo).",
@@ -152,7 +150,7 @@ class TallerArreglo {
     copiado_ = false;
 
     capacidad_ = n;
-    direccion_ += static_cast<std::uintptr_t>(capacidad_vieja_) * sizeof(int) + 16;
+    direccion_ += static_cast<unsigned long long>(capacidad_vieja_) * sizeof(int) + 16;
     activo_ = true;
     std::cout << ui::verde("  Reservado un bloque de " + std::to_string(n) + " elementos (" +
                            std::to_string(n * static_cast<int>(sizeof(int))) + " bytes) en " +
@@ -277,10 +275,8 @@ class TallerArreglo {
   int bucle_interactivo() {
     std::string linea;
     while (true) {
-      std::cout << ui::cian("arreglo> ") << std::flush;
-      if (!std::getline(std::cin, linea)) { std::cout << "\n"; break; }
+      if (!ui::leer_linea("arreglo> ", linea)) break;
       linea = util::recortar(linea);
-      if (!isatty(fileno(stdin))) std::cout << linea << "\n";
       const std::string norm = util::normalizar(linea);
       if (norm == "listo" || norm == "fin" || norm == "done" || norm == "salir") break;
       procesar(linea);
@@ -315,8 +311,7 @@ Nivel nivel_arreglos(std::mt19937& azar) {
       "pide en ejecucion con new[] y a partir de ahi todo corre por tu cuenta: cuantos "
       "elementos hay, cuando crecer y cuando liberar.";
 
-  std::uniform_int_distribution<int> rango(5, 12);
-  const int n = rango(azar);
+  const int n = util::entero_en_rango(azar, 5, 12);
 
   {
     Reto r;

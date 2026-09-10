@@ -1,7 +1,5 @@
 // Nivel 8: los dos errores clasicos de memoria. Fugas (memoria que se pide y
 // no se devuelve) y desbordamientos (escribir fuera de lo reservado).
-#include <unistd.h>
-
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -285,10 +283,8 @@ class TallerBuffer {
   int bucle_interactivo() {
     std::string linea;
     while (true) {
-      std::cout << ui::cian("buffer> ") << std::flush;
-      if (!std::getline(std::cin, linea)) { std::cout << "\n"; break; }
+      if (!ui::leer_linea("buffer> ", linea)) break;
       linea = util::recortar(linea);
-      if (!isatty(fileno(stdin))) std::cout << linea << "\n";
       const std::string norm = util::normalizar(linea);
       if (norm == "listo" || norm == "fin" || norm == "done" || norm == "salir") break;
       procesar(linea);
@@ -319,10 +315,8 @@ Nivel nivel_fugas(std::mt19937& azar) {
       "morir. Un desbordamiento es escribir fuera de lo que reservaste: pisas datos "
       "ajenos. El primero se nota tarde; el segundo, a veces nunca.";
 
-  std::uniform_int_distribution<int> vueltas(3, 9);
-  std::uniform_int_distribution<int> elementos(10, 40);
-  const int n = vueltas(azar);
-  const int m = elementos(azar);
+  const int n = util::entero_en_rango(azar, 3, 9);
+  const int m = util::entero_en_rango(azar, 10, 40);
 
   {
     const long long fugados = static_cast<long long>(n) * static_cast<long long>(m) *

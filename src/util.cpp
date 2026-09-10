@@ -7,6 +7,19 @@
 
 namespace util {
 
+int entero_en_rango(std::mt19937& azar, int minimo, int maximo) {
+  if (maximo <= minimo) return minimo;
+  const std::uint32_t ancho = static_cast<std::uint32_t>(maximo - minimo) + 1u;
+  // Muestreo con rechazo: descarta la franja final que sobra para que todos
+  // los valores tengan exactamente la misma probabilidad.
+  const std::uint32_t limite = 0xFFFFFFFFu - (0xFFFFFFFFu % ancho);
+  std::uint32_t v;
+  do {
+    v = static_cast<std::uint32_t>(azar());
+  } while (v >= limite);
+  return minimo + static_cast<int>(v % ancho);
+}
+
 std::string recortar(std::string s) {
   const auto no_espacio = [](unsigned char c) { return !std::isspace(c); };
   s.erase(s.begin(), std::find_if(s.begin(), s.end(), no_espacio));
