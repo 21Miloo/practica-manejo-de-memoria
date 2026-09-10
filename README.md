@@ -95,6 +95,11 @@ O con CMake:
 cmake -B build && cmake --build build && ./build/memlab
 ```
 
+La misma escena del relleno de un `struct`, en la terminal (las direcciones son
+las que reparte el sistema operativo, no las del módulo WebAssembly):
+
+![Relleno de un struct en la terminal](docs/capturas/terminal-padding.svg)
+
 | Opción | Para qué sirve |
 | --- | --- |
 | `--nivel N` | juega solo el nivel N (1 a 8) |
@@ -155,6 +160,11 @@ cada biblioteca estándar.
 Los talleres detectan de verdad lo que haces mal:
 
 ![Taller del montículo](docs/capturas/terminal-heap.svg)
+
+El del nivel 8, en la terminal, con el canario y la dirección de retorno
+aplastados:
+
+![Desbordamiento de búfer en la terminal](docs/capturas/terminal-desbordamiento.svg)
 
 Y el del nivel 7 te obliga a hacer los tres pasos del crecimiento a mano —
 reservar, copiar y liberar el bloque viejo — contando cada byte que se fuga:
