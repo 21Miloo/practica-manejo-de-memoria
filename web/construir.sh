@@ -22,11 +22,28 @@ mkdir -p web/wasm
 em++ -std=c++17 -O2 -Iinclude \
   src/web.cpp src/util.cpp src/ui.cpp src/juego.cpp src/niveles/*.cpp \
   -sASYNCIFY \
-  -sMODULARIZE -sEXPORT_ES6 -sEXPORT_NAME=crearMemLab \
+  -sMODULARIZE -sEXPORT_NAME=crearMemLab \
   -sEXPORTED_FUNCTIONS=_main,_malloc,_free,_memlab_jugar,_memlab_total_niveles \
   -sEXPORTED_RUNTIME_METHODS=UTF8ToString,stringToUTF8,lengthBytesUTF8,ccall \
   -sALLOW_MEMORY_GROWTH \
   -o web/wasm/memlab.js
 
 echo "Listo: web/wasm/memlab.js + memlab.wasm"
-echo "Para jugar:  python3 -m http.server -d web 8000   y abre http://localhost:8000"
+
+# Ademas, una version en un unico archivo HTML: el wasm viaja dentro del propio
+# JavaScript (codificado en base64), asi que se abre con doble clic, sin
+# servidor y sin instalar nada.
+em++ -std=c++17 -O2 -Iinclude \
+  src/web.cpp src/util.cpp src/ui.cpp src/juego.cpp src/niveles/*.cpp \
+  -sASYNCIFY \
+  -sMODULARIZE -sEXPORT_NAME=crearMemLab \
+  -sEXPORTED_FUNCTIONS=_main,_malloc,_free,_memlab_jugar,_memlab_total_niveles \
+  -sEXPORTED_RUNTIME_METHODS=UTF8ToString,stringToUTF8,lengthBytesUTF8,ccall \
+  -sALLOW_MEMORY_GROWTH -sSINGLE_FILE=1 \
+  -o web/wasm/memlab_unico.js
+
+python3 web/empaquetar.py
+
+echo "Para jugar:"
+echo "  * un solo archivo: abre web/memlab.html con doble clic"
+echo "  * o servido:       python3 -m http.server -d web 8000"

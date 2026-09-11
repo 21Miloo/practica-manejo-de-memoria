@@ -18,3 +18,6 @@ build/
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
+
+# Paso intermedio del empaquetado (el resultado es web/memlab.html)
+web/wasm/memlab_unico.js

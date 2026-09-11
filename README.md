@@ -35,15 +35,18 @@ un `struct` (los bytes `aa` son relleno de verdad, no un dibujo):
 
 ### Cómo jugarla
 
-El módulo ya compilado está en el repositorio, así que basta con servir la
-carpeta `web/`:
+**Lo más rápido:** abre `web/memlab.html` con doble clic. Es el juego entero en
+un único archivo —el módulo WebAssembly viaja dentro del propio JavaScript—, así
+que funciona desde el disco, sin servidor, sin instalar nada y sin conexión.
+
+**O sirviendo la carpeta**, si prefieres los archivos por separado:
 
 ```bash
 python3 -m http.server -d web 8000      # y abre http://localhost:8000
 ```
 
-Hace falta servirlo por HTTP: abrir `index.html` como archivo local no permite
-cargar el módulo WebAssembly.
+Esta segunda forma necesita el servidor: `web/index.html` carga el módulo como
+archivo aparte, y los navegadores no lo permiten desde `file://`.
 
 ### Cómo se recompila
 
@@ -54,8 +57,11 @@ git clone https://github.com/emscripten-core/emsdk.git
 cd emsdk && ./emsdk install latest && ./emsdk activate latest && source ./emsdk_env.sh
 cd -
 
-./web/construir.sh                      # regenera web/wasm/memlab.js y .wasm
+./web/construir.sh                      # regenera las dos versiones
 ```
+
+Genera `web/wasm/memlab.js` + `memlab.wasm` (la versión servida) y, con
+`web/empaquetar.py`, el `web/memlab.html` de un solo archivo.
 
 ### Cómo está hecha
 
@@ -211,6 +217,8 @@ web/
   estilo.css        tema oscuro, tarjetas, tipografía monoespaciada
   app.js            traduce la salida del motor a nodos del DOM
   construir.sh      compila el motor a WebAssembly con Emscripten
+  empaquetar.py     junta todo en un único HTML que se abre con doble clic
+  memlab.html       ese archivo único, listo para jugar
 ejemplos/           programas para practicar con sanitizadores
 docs/
   ansi_a_svg.py     convierte la salida de la terminal en las capturas del README

@@ -3,7 +3,8 @@
 // El motor no sabe nada de HTML: emite lineas de texto con marcas de control
 // que aqui se convierten en nodos del DOM. El texto nunca se interpreta como
 // HTML (se inserta con textContent), asi que no hay forma de inyectar marcado.
-import crearMemLab from './wasm/memlab.js';
+//
+// 'crearMemLab' lo define wasm/memlab.js, que se carga antes que este archivo.
 
 // Marcas de estructura; deben coincidir con las de include/ui.hpp.
 const MARCA = {
